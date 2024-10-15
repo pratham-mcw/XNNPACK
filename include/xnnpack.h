@@ -1351,111 +1351,118 @@ enum xnn_status xnn_define_static_mean(
 ///                    in the @a subgraph with each dimension equal to the dimension of both inputs, except the axis
 ///                    dimension, where it is the sum of the corresponding dimensions of both inputs.
 /// @param flags - binary features of the Concatenate Node. No supported flags are currently defined.
-enum xnn_status xnn_define_concatenate2(
+enum xnn_status xnn_define_concatenate(
   xnn_subgraph_t subgraph,
   int32_t axis,
-  uint32_t input1_id,
-  uint32_t input2_id,
+size_t num_inputs,
+  const uint32_t* inputs,
   uint32_t output_id,
   uint32_t flags);
+// enum xnn_status xnn_define_concatenate2(
+//   xnn_subgraph_t subgraph,
+//   int32_t axis,
+//   uint32_t input1_id,
+//   uint32_t input2_id,
+//   uint32_t output_id,
+//   uint32_t flags);
 
-/// Define a 3-Input Concatenate Node and add it to a Subgraph.
-///
-/// The 3-Input Concatenate Node concatenates three tensors along a specified axis.
-///
-/// @param subgraph - a Subgraph object that will own the created Node.
-/// @param axis - the axis to concatenate the two input tensors along. If this is less than zero, the number of
-///               dimensions is added to it.
-/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input2_id - Value ID for the second input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input3_id - Value ID for the third input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param output_id - Value ID for the output tensor. The output tensor must be a N-dimensional tensor defined
-///                    in the @a subgraph with each dimension equal to the dimension of all inputs, except the axis
-///                    dimension, where it is the sum of the corresponding dimensions of all inputs.
-/// @param flags - binary features of the Concatenate Node. No supported flags are currently defined.
-enum xnn_status xnn_define_concatenate3(
-  xnn_subgraph_t subgraph,
-  int32_t axis,
-  uint32_t input1_id,
-  uint32_t input2_id,
-  uint32_t input3_id,
-  uint32_t output_id,
-  uint32_t flags);
+// /// Define a 3-Input Concatenate Node and add it to a Subgraph.
+// ///
+// /// The 3-Input Concatenate Node concatenates three tensors along a specified axis.
+// ///
+// /// @param subgraph - a Subgraph object that will own the created Node.
+// /// @param axis - the axis to concatenate the two input tensors along. If this is less than zero, the number of
+// ///               dimensions is added to it.
+// /// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input2_id - Value ID for the second input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input3_id - Value ID for the third input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param output_id - Value ID for the output tensor. The output tensor must be a N-dimensional tensor defined
+// ///                    in the @a subgraph with each dimension equal to the dimension of all inputs, except the axis
+// ///                    dimension, where it is the sum of the corresponding dimensions of all inputs.
+// /// @param flags - binary features of the Concatenate Node. No supported flags are currently defined.
+// enum xnn_status xnn_define_concatenate3(
+//   xnn_subgraph_t subgraph,
+//   int32_t axis,
+//   uint32_t input1_id,
+//   uint32_t input2_id,
+//   uint32_t input3_id,
+//   uint32_t output_id,
+//   uint32_t flags);
 
-/// Define a 4-Input Concatenate Node and add it to a Subgraph.
-///
-/// The 4-Input Concatenate Node concatenates four tensors along a specified axis.
-///
-/// @param subgraph - a Subgraph object that will own the created Node.
-/// @param axis - the axis to concatenate the two input tensors along. If this is less than zero, the number of
-///               dimensions is added to it.
-/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input2_id - Value ID for the second input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input3_id - Value ID for the third input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input4_id - Value ID for the fourth input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param output_id - Value ID for the output tensor. The output tensor must be a N-dimensional tensor defined
-///                    in the @a subgraph with each dimension equal to the dimension of all inputs, except the axis
-///                    dimension, where it is the sum of the corresponding dimensions of all inputs.
-/// @param flags - binary features of the Concatenate Node. No supported flags are currently defined.
-enum xnn_status xnn_define_concatenate4(
-  xnn_subgraph_t subgraph,
-  int32_t axis,
-  uint32_t input1_id,
-  uint32_t input2_id,
-  uint32_t input3_id,
-  uint32_t input4_id,
-  uint32_t output_id,
-  uint32_t flags);
+// /// Define a 4-Input Concatenate Node and add it to a Subgraph.
+// ///
+// /// The 4-Input Concatenate Node concatenates four tensors along a specified axis.
+// ///
+// /// @param subgraph - a Subgraph object that will own the created Node.
+// /// @param axis - the axis to concatenate the two input tensors along. If this is less than zero, the number of
+// ///               dimensions is added to it.
+// /// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input2_id - Value ID for the second input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input3_id - Value ID for the third input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input4_id - Value ID for the fourth input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param output_id - Value ID for the output tensor. The output tensor must be a N-dimensional tensor defined
+// ///                    in the @a subgraph with each dimension equal to the dimension of all inputs, except the axis
+// ///                    dimension, where it is the sum of the corresponding dimensions of all inputs.
+// /// @param flags - binary features of the Concatenate Node. No supported flags are currently defined.
+// enum xnn_status xnn_define_concatenate4(
+//   xnn_subgraph_t subgraph,
+//   int32_t axis,
+//   uint32_t input1_id,
+//   uint32_t input2_id,
+//   uint32_t input3_id,
+//   uint32_t input4_id,
+//   uint32_t output_id,
+//   uint32_t flags);
 
-/// Define a 5-Input Concatenate Node and add it to a Subgraph.
-///
-/// The 5-Input Concatenate Node concatenates four tensors along a specified axis.
-///
-/// @param subgraph - a Subgraph object that will own the created Node.
-/// @param axis - the axis to concatenate the two input tensors along. If this is less than zero, the number of
-///               dimensions is added to it.
-/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input2_id - Value ID for the second input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input3_id - Value ID for the third input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input4_id - Value ID for the fourth input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param input5_id - Value ID for the fourth input tensor. The input tensor must be an N-dimensional tensor defined in
-///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
-///                    other inputs.
-/// @param output_id - Value ID for the output tensor. The output tensor must be a N-dimensional tensor defined
-///                    in the @a subgraph with each dimension equal to the dimension of all inputs, except the axis
-///                    dimension, where it is the sum of the corresponding dimensions of all inputs.
-enum xnn_status xnn_define_concatenate5(
-  xnn_subgraph_t subgraph,
-  int32_t axis,
-  uint32_t input1_id,
-  uint32_t input2_id,
-  uint32_t input3_id,
-  uint32_t input4_id,
-  uint32_t input5_id,
-  uint32_t output_id,
-  uint32_t flags);
+// /// Define a 5-Input Concatenate Node and add it to a Subgraph.
+// ///
+// /// The 5-Input Concatenate Node concatenates four tensors along a specified axis.
+// ///
+// /// @param subgraph - a Subgraph object that will own the created Node.
+// /// @param axis - the axis to concatenate the two input tensors along. If this is less than zero, the number of
+// ///               dimensions is added to it.
+// /// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input2_id - Value ID for the second input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input3_id - Value ID for the third input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input4_id - Value ID for the fourth input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param input5_id - Value ID for the fourth input tensor. The input tensor must be an N-dimensional tensor defined in
+// ///                    the @a subgraph with each dimension, except the axis, equal to the corresponding dimension of the
+// ///                    other inputs.
+// /// @param output_id - Value ID for the output tensor. The output tensor must be a N-dimensional tensor defined
+// ///                    in the @a subgraph with each dimension equal to the dimension of all inputs, except the axis
+// ///                    dimension, where it is the sum of the corresponding dimensions of all inputs.
+// enum xnn_status xnn_define_concatenate5(
+//   xnn_subgraph_t subgraph,
+//   int32_t axis,
+//   uint32_t input1_id,
+//   uint32_t input2_id,
+//   uint32_t input3_id,
+//   uint32_t input4_id,
+//   uint32_t input5_id,
+//   uint32_t output_id,
+//   uint32_t flags);
 
 /// Define a Copy Sign Node and add it to a Subgraph.
 ///

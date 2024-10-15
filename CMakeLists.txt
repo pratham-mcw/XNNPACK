@@ -1331,10 +1331,7 @@ IF(XNNPACK_BUILD_TESTS)
         binary
         ceiling
         clamp
-        concatenate2
-        concatenate3
-        concatenate4
-        concatenate5
+        concatenateN
         convert
         copy
         depth-to-space-2d

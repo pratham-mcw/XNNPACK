@@ -14,6 +14,7 @@
 #include <numeric>
 #include <random>
 #include <vector>
+#include <iostream>
 
 #include <gtest/gtest.h>
 #include "xnnpack.h"
@@ -22,6 +23,7 @@
 #include "xnnpack/subgraph.h"
 #include "replicable_random_device.h"
 
+/*
 template <typename T> class Concatenate2Test : public ::testing::Test {
  protected:
   Concatenate2Test() {
@@ -51,6 +53,7 @@ template <typename T> class Concatenate2Test : public ::testing::Test {
 
     batch_size = 1;
     channels_1 = 1;
+    
     channels_2 = 1;
     for (size_t i = 0; i < axis; i++) {
       batch_size *= output_dims[i];
@@ -94,6 +97,103 @@ template <typename T> class Concatenate2Test : public ::testing::Test {
   std::uniform_int_distribution<int32_t> i8dist;
   std::uniform_int_distribution<int32_t> u8dist;
   std::uniform_real_distribution<float> scale_dist;
+
+  uint32_t input1_id;
+  uint32_t input2_id;
+  uint32_t output_id;
+
+  std::vector<size_t> input1_dims;
+  std::vector<size_t> input2_dims;
+  std::vector<size_t> output_dims;
+
+  size_t axis;
+  size_t batch_size;
+  size_t channels_1;
+  size_t channels_2;
+  size_t output_stride;
+
+  int32_t signed_zero_point;
+  int32_t unsigned_zero_point;
+  float scale;
+
+  std::vector<T> input1;
+  std::vector<T> input2;
+  std::vector<T> operator_output;
+  std::vector<T> subgraph_output;
+};
+*/
+template <typename T> class Concatenate2Test : public ::testing::Test {
+ protected:
+  Concatenate2Test() {
+    // shape_dist = std::uniform_int_distribution<size_t>(1, XNN_MAX_TENSOR_DIMS);
+    // dim_dist = std::uniform_int_distribution<size_t>(1, 9);
+    // f32dist = std::uniform_real_distribution<float>();
+    // i8dist =
+    //   std::uniform_int_distribution<int32_t>(std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
+    // u8dist =
+    //   std::uniform_int_distribution<int32_t>(std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+    // scale_dist = std::uniform_real_distribution<float>(0.1f, 5.0f);
+
+    input1_dims = {2,3};
+    axis = 1;
+    input2_dims = {2,4};
+    output_dims = input1_dims;
+    output_dims[axis] = input1_dims[axis] + input2_dims[axis];
+
+    input1 = std::vector<T>(NumElements(input1_dims));
+    input2 = std::vector<T>(NumElements(input2_dims));
+    operator_output = std::vector<T>(NumElements(output_dims));
+    subgraph_output = std::vector<T>(NumElements(output_dims));
+
+    signed_zero_point = 0;
+    unsigned_zero_point = 0;
+    scale = 1.0f;
+
+    batch_size = 1;
+    channels_1 = 1;
+    channels_2 = 1;
+    for (size_t i = 0; i < axis; i++) {
+      batch_size *= output_dims[i];
+    }
+
+    for (size_t i = axis; i < input1_dims.size(); i++) {
+      channels_1 *= input1_dims[i];
+      channels_2 *= input2_dims[i];
+    }
+    output_stride = channels_1 + channels_2;
+  }
+
+  // std::vector<size_t> RandomShape()
+  // {
+  //   std::vector<size_t> dims(shape_dist(rng));
+  //   std::generate(dims.begin(), dims.end(), [&] { return dim_dist(rng); });
+  //   return dims;
+  // }
+
+  // std::vector<size_t> RandomShape(const std::vector<size_t> base_dims, size_t axis)
+  // {
+  //   auto dims = base_dims;
+  //   dims[axis] = dim_dist(rng);
+  //   return dims;
+  // }
+
+  // size_t RandomAxis(const std::vector<size_t>& dims)
+  // {
+  //   return std::uniform_int_distribution<size_t>(0, dims.size() - 1)(rng);
+  // }
+
+  size_t NumElements(const std::vector<size_t>& dims)
+  {
+    return std::accumulate(dims.begin(), dims.end(), size_t(1), std::multiplies<size_t>());
+  }
+
+  // xnnpack::ReplicableRandomDevice rng;
+  // std::uniform_int_distribution<size_t> shape_dist;
+  // std::uniform_int_distribution<size_t> dim_dist;
+  // std::uniform_real_distribution<float> f32dist;
+  // std::uniform_int_distribution<int32_t> i8dist;
+  // std::uniform_int_distribution<int32_t> u8dist;
+  // std::uniform_real_distribution<float> scale_dist;
 
   uint32_t input1_id;
   uint32_t input2_id;
@@ -308,8 +408,10 @@ TEST_F(Concatenate2TestF32, define)
 
 TEST_F(Concatenate2TestQS8, matches_operator_api)
 {
-  std::generate(input1.begin(), input1.end(), [&]() { return i8dist(rng); });
-  std::generate(input2.begin(), input2.end(), [&]() { return i8dist(rng); });
+  // std::generate(input1.begin(), input1.end(), [&]() { return i8dist(rng); });
+  // std::generate(input2.begin(), input2.end(), [&]() { return i8dist(rng); });
+  input1 = std::vector<int8_t>(NumElements(input1_dims), static_cast<int8_t>(1));
+  input2 = std::vector<int8_t>(NumElements(input2_dims), static_cast<int8_t>(2));
   std::fill(operator_output.begin(), operator_output.end(), INT8_C(0xA5));
   std::fill(subgraph_output.begin(), subgraph_output.end(), INT8_C(0xA5));
 
