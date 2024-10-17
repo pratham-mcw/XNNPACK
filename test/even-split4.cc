@@ -490,6 +490,10 @@ TEST_F(EvenSplit4TestQS8, matches_operator_api)
     xnn_define_even_split4(subgraph, axis, input_id, output1_id, output2_id, output3_id, output4_id, /*flags=*/0));
 
   xnn_runtime_t runtime = nullptr;
+  std::cout<< "outputId 1 : " <<output1_id<<std::endl;
+  std::cout<< "outputId 2 : " <<output2_id<<std::endl;
+  std::cout<< "outputId 3 : " <<output3_id<<std::endl;
+  std::cout<< "outputId 4 : " <<output4_id<<std::endl;
   ASSERT_EQ(xnn_status_success, xnn_create_runtime_v3(subgraph, nullptr, nullptr, /*flags=*/0, &runtime));
   ASSERT_NE(nullptr, runtime);
   std::unique_ptr<xnn_runtime, decltype(&xnn_delete_runtime)> auto_runtime(runtime, xnn_delete_runtime);

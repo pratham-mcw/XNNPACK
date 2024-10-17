@@ -1341,9 +1341,7 @@ IF(XNNPACK_BUILD_TESTS)
         elu
         gelu
         exp
-        even-split2
-        even-split3
-        even-split4
+        even-splitN
         floor
         global-average-pooling-1d
         global-average-pooling-2d
