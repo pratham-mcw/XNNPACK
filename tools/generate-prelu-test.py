@@ -13,14 +13,17 @@ import sys
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from primes import next_prime
 import xngen
 import xnncommon
 
 
-parser = argparse.ArgumentParser(description='PReLU microkernel test generator')
-parser.add_argument("-s", "--spec", metavar="FILE", required=True,
-                    help="Specification (YAML) file")
+parser = argparse.ArgumentParser(
+  description='prelu microkernel test generator')
+parser.add_argument("-t", "--tester", metavar="TESTER", required=True,
+                    choices=["PReLUMicrokernelTester"],
+                    help="Tester class to be used in the generated test")
+parser.add_argument("-k", "--ukernel", metavar="FILE", required=True,
+                    help="Microkernel type")
 parser.add_argument("-o", "--output", metavar="FILE", required=True,
                     help='Output (C++ source) file')
 parser.set_defaults(defines=list())
@@ -28,6 +31,7 @@ parser.set_defaults(defines=list())
 
 def split_ukernel_name(name):
   match = re.fullmatch(r"xnn_(f16|f32)_prelu_ukernel__(.+)_(\d+)x(\d+)", name)
+  print("match : ", match)
   assert match is not None
   row_tile = int(match.group(3))
   channel_tile = int(match.group(4))
@@ -35,173 +39,27 @@ def split_ukernel_name(name):
   arch, isa, assembly = xnncommon.parse_target_name(target_name=match.group(2))
   return row_tile, channel_tile, arch, isa
 
-
 PRELU_TEST_TEMPLATE = """\
-TEST(${TEST_NAME}, channels_eq_${CHANNEL_TILE}) {
-  $if ISA_CHECK:
-    ${ISA_CHECK};
-  PReLUMicrokernelTester()
-    .rows(${ROW_TILE})
-    .channels(${CHANNEL_TILE})
-    .Test(${", ".join(TEST_ARGS)});
-}
-
-$if CHANNEL_TILE > 1:
-  TEST(${TEST_NAME}, channels_div_${CHANNEL_TILE}) {
-    $if ISA_CHECK:
-      ${ISA_CHECK};
-    for (size_t channels = ${CHANNEL_TILE*2}; channels < ${CHANNEL_TILE*10}; channels += ${CHANNEL_TILE}) {
-      PReLUMicrokernelTester()
-        .rows(${ROW_TILE})
-        .channels(channels)
-        .Test(${", ".join(TEST_ARGS)});
-    }
-  }
-
-  TEST(${TEST_NAME}, channels_lt_${CHANNEL_TILE}) {
-    $if ISA_CHECK:
-      ${ISA_CHECK};
-    for (size_t channels = 1; channels < ${CHANNEL_TILE}; channels++) {
-      PReLUMicrokernelTester()
-        .rows(${ROW_TILE})
-        .channels(channels)
-        .Test(${", ".join(TEST_ARGS)});
-    }
-  }
-
-TEST(${TEST_NAME}, channels_gt_${CHANNEL_TILE}) {
-  $if ISA_CHECK:
-    ${ISA_CHECK};
-  for (size_t channels = ${CHANNEL_TILE+1}; channels < ${10 if CHANNEL_TILE == 1 else CHANNEL_TILE*2}; channels++) {
-    PReLUMicrokernelTester()
-      .rows(${ROW_TILE})
-      .channels(channels)
-      .Test(${", ".join(TEST_ARGS)});
-  }
-}
-
-$if ROW_TILE > 1:
-  TEST(${TEST_NAME}, rows_lt_${ROW_TILE}) {
-    $if ISA_CHECK:
-      ${ISA_CHECK};
-    for (size_t rows = 1; rows < ${ROW_TILE}; rows++) {
-      for (size_t channels = 1; channels <= ${CHANNEL_TILE*5}; channels += ${max(1, CHANNEL_TILE-1)}) {
-        PReLUMicrokernelTester()
-          .rows(rows)
-          .channels(channels)
-          .Test(${", ".join(TEST_ARGS)});
-      }
-    }
-  }
-
-  TEST(${TEST_NAME}, rows_div_${ROW_TILE}) {
-    $if ISA_CHECK:
-      ${ISA_CHECK};
-    for (size_t rows = ${ROW_TILE*2}; rows <= ${ROW_TILE*4}; rows += ${ROW_TILE}) {
-      for (size_t channels = 1; channels <= ${CHANNEL_TILE*5}; channels += ${max(1, CHANNEL_TILE-1)}) {
-        PReLUMicrokernelTester()
-          .rows(rows)
-          .channels(channels)
-          .Test(${", ".join(TEST_ARGS)});
-      }
-    }
-  }
-
-TEST(${TEST_NAME}, rows_gt_${ROW_TILE}) {
-  $if ISA_CHECK:
-    ${ISA_CHECK};
-  for (size_t rows = ${ROW_TILE+1}; rows < ${ROW_TILE*2}; rows++) {
-    for (size_t channels = 1; channels <= ${CHANNEL_TILE*5}; channels += ${max(1, CHANNEL_TILE-1)}) {
-      PReLUMicrokernelTester()
-        .rows(rows)
-        .channels(channels)
-        .Test(${", ".join(TEST_ARGS)});
-    }
-  }
-}
-
-TEST(${TEST_NAME}, input_stride) {
-  $if ISA_CHECK:
-    ${ISA_CHECK};
-  for (size_t rows = 1; rows <= ${ROW_TILE*3}; rows += ${max(1, ROW_TILE-1)}) {
-    for (size_t channels = 1; channels <= ${CHANNEL_TILE*5}; channels += ${max(1, CHANNEL_TILE-1)}) {
-      PReLUMicrokernelTester()
-        .rows(rows)
-        .channels(channels)
-        .input_stride(${next_prime(CHANNEL_TILE*5+1)})
-        .iterations(1)
-        .Test(${", ".join(TEST_ARGS)});
-    }
-  }
-}
-
-TEST(${TEST_NAME}, output_stride) {
-  $if ISA_CHECK:
-    ${ISA_CHECK};
-  for (size_t rows = 1; rows <= ${ROW_TILE*3}; rows += ${max(1, ROW_TILE-1)}) {
-    for (size_t channels = 1; channels <= ${CHANNEL_TILE*5}; channels += ${max(1, CHANNEL_TILE-1)}) {
-      PReLUMicrokernelTester()
-        .rows(rows)
-        .channels(channels)
-        .output_stride(${next_prime(CHANNEL_TILE*5+1)})
-        .iterations(1)
-        .Test(${", ".join(TEST_ARGS)});
-    }
-  }
-}
-
-TEST(${TEST_NAME}, inplace) {
-  $if ISA_CHECK:
-    ${ISA_CHECK};
-  for (size_t rows = 1; rows <= ${ROW_TILE*3}; rows += ${max(1, ROW_TILE-1)}) {
-    for (size_t channels = 1; channels <= ${CHANNEL_TILE*5}; channels += ${max(1, CHANNEL_TILE-1)}) {
-      PReLUMicrokernelTester()
-        .rows(rows)
-        .channels(channels)
-        .inplace(true)
-        .iterations(1)
-        .Test(${", ".join(TEST_ARGS)});
-    }
-  }
-}
+#define XNN_UKERNEL_WITH_PARAMS(arch_flags, ukernel, row_tile, channel_tile, datatype, params_type, init_params) \
+XNN_TEST_PRELU_ROW_EQ(ukernel,arch_flags, ${", ".join(TEST_ARGS)});  
+XNN_TEST_PRELU_ROW_DIV(ukernel,arch_flags,  ${", ".join(TEST_ARGS)});
+XNN_TEST_PRELU_ROW_LT(ukernel,arch_flags,  ${", ".join(TEST_ARGS)});
+XNN_TEST_PRELU_ROW_GT(ukernel,arch_flags,  ${", ".join(TEST_ARGS)});
 """
 
-
-def generate_test_cases(ukernel, row_tile, channel_tile, isa):
-  """Generates all tests cases for a PRELU micro-kernel.
-
-  Args:
-    ukernel: C name of the micro-kernel function.
-    row_tile: Number of rows (pixels) processed per one iteration of the outer
-              loop of the micro-kernel.
-    channel_tile: Number of channels processed per one iteration of the inner
-                  loop of the micro-kernel.
-    isa: instruction set required to run the micro-kernel. Generated unit test
-         will skip execution if the host processor doesn't support this ISA.
-
-  Returns:
-    Code for the test case.
-  """
-  _, test_name = ukernel.split("_", 1)
-  _, datatype, ukernel_type, _ = ukernel.split("_", 3)
-  return xngen.preprocess(PRELU_TEST_TEMPLATE, {
-      "TEST_NAME": test_name.upper().replace("UKERNEL_", ""),
-      "TEST_ARGS": [ukernel],
-      "DATATYPE": datatype,
-      "ROW_TILE": row_tile,
-      "CHANNEL_TILE": channel_tile,
-      "ISA_CHECK": xnncommon.generate_isa_check_macro(isa),
-      "next_prime": next_prime,
-    })
-
-
 def main(args):
-  options = parser.parse_args(args)
+    options = parser.parse_args(args)
+    tester = options.tester
+    tester_header = {
+    "PReLUMicrokernelTester": "prelu-microkernel-tester.h",
+    }[tester]
+    ukernel = options.ukernel
 
-  with codecs.open(options.spec, "r", encoding="utf-8") as spec_file:
-    spec_yaml = yaml.safe_load(spec_file)
-    if not isinstance(spec_yaml, list):
-      raise ValueError("expected a list of micro-kernels in the spec")
+    # Assuming the spec file part will be uncommented and used
+    # with codecs.open(options.spec, "r", encoding="utf-8") as spec_file:
+    #     spec_yaml = yaml.safe_load(spec_file)
+    #     if not isinstance(spec_yaml, list):
+    #         raise ValueError("expected a list of micro-kernels in the spec")
 
     tests = """\
 // Copyright 2019 Google LLC
@@ -219,17 +77,36 @@ def main(args):
 #include "xnnpack/isa-checks.h"
 #include "xnnpack/prelu.h"
 #include "prelu-microkernel-tester.h"
-""".format(specification=options.spec, generator=sys.argv[0])
+""".format(specification=options.ukernel, generator=sys.argv[0])
+    ukernel_parts = options.ukernel.split("-")
+    datatype = ukernel_parts[0]
+    op = ukernel_parts[1]
+    test_args = ["row_tile"]
+    test_args.append("channel_tile")
+    test_args.append("init_params")
+    tests += xnncommon.make_multiline_macro(xngen.preprocess(
+      PRELU_TEST_TEMPLATE,
+      {
+          "TEST_ARGS": test_args,
+          "TESTER": tester,
+          "DATATYPE": datatype,
+      },
+  ))
+    folder = datatype + "-" + ("prelu" if datatype.startswith("f") else op)
+    print("options",options.ukernel)
+    tests += f'#include "{xnncommon._XNNPACK_SRC}/{folder}/{options.ukernel}.h"\n'
+    tests += "#undef XNN_UKERNEL_WITH_PARAMS\n"
 
-    for ukernel_spec in spec_yaml:
-      name = ukernel_spec["name"]
-      row_tile, channel_tile, arch, isa = split_ukernel_name(name)
 
-      test_case = generate_test_cases(name, row_tile, channel_tile, isa)
-      tests += "\n\n" + xnncommon.postprocess_test_case(test_case, arch, isa)
+    # Uncomment when using the spec file
+    # for ukernel_spec in spec_yaml:
+    #     name = ukernel_spec["name"]
+    #     elements_tile, arch, isa = split_ukernel_name(name)
+
+    #     test_case = generate_test_cases(name, elements_tile, isa)
+    #     tests += "\n\n" + xnncommon.postprocess_test_case(test_case, arch, isa)
 
     xnncommon.overwrite_if_changed(options.output, tests)
-
 
 if __name__ == "__main__":
   main(sys.argv[1:])

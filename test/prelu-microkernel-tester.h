@@ -187,3 +187,34 @@ class PReLUMicrokernelTester {
   bool inplace_{false};
   size_t iterations_{15};
 };
+
+#define XNN_TEST_PRELU_ROW_EQ(ukernel,arch_flags, row_tile, channel_tile ...)                                                \
+  TEST(ukernel, ROW_eq) {                                                                        \
+    PReLUMicrokernelTester()                                                                    \
+      .rows(row_tile)                                                                           \
+     .Test(ukernel);                                  \                                            
+  }
+#define XNN_TEST_PRELU_ROW_DIV(ukernel,arch_flags, row_tile, channel_tile ...)                                                 \
+  TEST(ukernel, ROW_gt) {                                                                            \
+    for (size_t ROW_size = row_tile + 1; ROW_size < 2 * row_tile; ROW_size++) {              \
+      PReLUMicrokernelTester()                                                                  \
+        .rows(ROW_size)                                                                           \
+        .Test(ukernel);                                                                            \
+    }                                                                                               \                                 
+  }
+#define XNN_TEST_PRELU_ROW_LT(ukernel,arch_flags, row_tile, channel_tile ...)                                                 \
+ TEST(ukernel, ROW_lt) {                                                                             \
+    for (size_t ROW_size =  1; ROW_size < row_tile; ROW_size++) {                              \
+      PReLUMicrokernelTester()                                                                  \
+        .rows(ROW_size)                                                                             \
+        .Test(ukernel);                                                                            \
+    }                    \                                                                              
+  }
+#define XNN_TEST_PRELU_ROW_GT(ukernel,arch_flags, row_tile, channel_tile ...)                                                \
+ TEST(ukernel, ROW_div) {                                                                            \
+    for (size_t ROW_size =  2 * row_tile; ROW_size < 10 * row_tile; ROW_size+= row_tile) { \
+      PReLUMicrokernelTester()                                                                  \
+        .rows(ROW_size)                                                                                   \
+        .Test(ukernel);                                                                            \
+    }                                                                                                  \
+  }                                                                                                     
