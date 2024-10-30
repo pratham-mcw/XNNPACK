@@ -175,3 +175,31 @@ class ReduceMicrokernelTester {
   size_t batch_size_{1};
   size_t iterations_{15};
 };
+
+#define XNN_TEST_REDUCE_BATCH_EQ(arch_flags, ukernel, batch_tile, ...)                                                  \
+  TEST(ukernel, batch_eq)                                                                                            \
+  {                                                                                                                  \
+    ReduceMicrokernelTester().batch_size(batch_tile).Test(ukernel);                                                     \
+  }
+
+#define XNN_TEST_REDUCE_BATCH_DIV(arch_flags, ukernel, batch_tile, ...)                                                 \
+  TEST(ukernel, batch_div)                                                                                           \
+  {                                                                                                                  \
+    ReduceMicrokernelTester().batch_size(batch_tile).Test(ukernel);                                                     \
+  }
+
+#define XNN_TEST_REDUCE_BATCH_LT(arch_flags, ukernel, batch_tile, ...)                                                  \
+  TEST(ukernel, batch_lt)                                                                                            \
+  {                                                                                                                  \
+    for (size_t batch= 1; batch < batch_tile; batch++) {                                                             \
+      ReduceMicrokernelTester().batch_size(batch).Test(ukernel);                                                        \
+    }                                                                                                                \
+  }
+
+#define XNN_TEST_REDUCE_BATCH_GT(arch_flags, ukernel, batch_tile, ...)                                                  \
+  TEST(ukernel, batch_gt)                                                                                            \
+  {                                                                                                                  \
+    for (size_t batch = 2 * batch_tile; batch < 10 * batch_tile; batch += batch_tile) {                              \
+      ReduceMicrokernelTester().batch_size(batch).Test(ukernel);                                                        \
+    }                                                                                                                \
+  }

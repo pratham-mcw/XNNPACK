@@ -270,3 +270,32 @@ class RSumMicrokernelTester {
   uint8_t qmin_{0};
   uint8_t qmax_{255};
 };
+
+
+#define XNN_TEST_REDUCE_BATCH_EQ(arch_flags, ukernel, batch_tile, datatype, params_type, init_params)                                                  \
+  TEST(ukernel, batch_eq)                                                                                            \
+  {                                                                                                                  \
+    RSumMicrokernelTester().batch_size(batch_tile).Test(ukernel,init_params);                                                     \
+  }
+
+#define XNN_TEST_REDUCE_BATCH_DIV(arch_flags, ukernel, batch_tile, datatype, params_type, init_params)                                                 \
+  TEST(ukernel, batch_div)                                                                                           \
+  {                                                                                                                  \
+    RSumMicrokernelTester().batch_size(batch_tile).Test(ukernel,init_params);                                                     \
+  }
+
+#define XNN_TEST_REDUCE_BATCH_LT(arch_flags, ukernel, batch_tile, datatype, params_type, init_params)                                                  \
+  TEST(ukernel, batch_lt)                                                                                            \
+  {                                                                                                                  \
+    for (size_t batch= 1; batch < batch_tile; batch++) {                                                             \
+      RSumMicrokernelTester().batch_size(batch).Test(ukernel,init_params);                                                        \
+    }                                                                          \
+  }
+
+#define XNN_TEST_REDUCE_BATCH_GT(arch_flags, ukernel, batch_tile, datatype, params_type, init_params)                                                  \
+  TEST(ukernel, batch_gt)                                                                                            \
+  {                                                                                                                  \
+    for (size_t batch = 2 * batch_tile; batch < 10 * batch_tile; batch += batch_tile) {                              \
+      RSumMicrokernelTester().batch_size(batch).Test(ukernel,init_params);                                                        \
+    }                                                                                                                \
+  }
